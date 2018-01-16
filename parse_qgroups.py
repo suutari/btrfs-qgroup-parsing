@@ -89,7 +89,10 @@ class QGroupEntry(NamedTuple):
         return None
 
     def __str__(self) -> str:
-        return f'{self.id}: rfer={self.rfer} excl={self.excl}'
+        return (
+            f'{self.id}: '
+            f'rfer={self.rfer/1000000:.1f}MB '
+            f'excl={self.excl/1000000:.1f}MB')
 
     def get_sort_key(self) -> Tuple[int, int, QGroupId]:
         splitted = self.id.split('/', 1)
