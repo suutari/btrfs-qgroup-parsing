@@ -82,7 +82,7 @@ class QGroupEntry(NamedTuple):
         return self.qgroupid
 
     @property
-    def subvol_id(self) -> SubvolId:
+    def subvol_id(self) -> Optional[SubvolId]:
         (id1, id2, _str_id) = self.get_sort_key()
         if id1 == 0:
             return SubvolId(id2)
@@ -110,18 +110,18 @@ class QGroupTree:
     def __init__(self, entries: Iterable[QGroupEntry]) -> None:
         self.entries = {x.id: x for x in entries}
         self._children_map = self._make_children_map(self.entries.values())
-        self.roots = sorted(
-            (x for x in self.entries.values() if not x.parent),
-            key=QGroupEntry.get_sort_key)
+        self.roots = self._children_map.get(None, [])
 
     @classmethod
     def _make_children_map(
             cls, entries: Iterable[QGroupEntry]
-    ) -> Dict[QGroupId, List[QGroupEntry]]:
-        result: Dict[QGroupId, List[QGroupEntry]]
+    ) -> Dict[Optional[QGroupId], List[QGroupEntry]]:
+        result: Dict[Optional[QGroupId], List[QGroupEntry]]
         result = {}
         for entry in entries:
             result.setdefault(entry.parent, []).append(entry)
+        for (key, values) in list(result.items()):
+            result[key] = sorted(values, key=QGroupEntry.get_sort_key)
         return result
 
     def get_children(self, entry: QGroupEntry) -> Iterable[QGroupEntry]:
@@ -148,7 +148,7 @@ def main() -> None:
     for item in tree:
         indent = item.level * '    '
         subvol_id = item.entry.subvol_id
-        subvol = subvolmap.get(subvol_id, None)
+        subvol = subvolmap.get(subvol_id) if subvol_id else None
         subvol_path = getattr(subvol, 'path', '')
         if item.entry.rfer != 0:
             print(f'{indent}{item.entry} path={subvol_path}')
