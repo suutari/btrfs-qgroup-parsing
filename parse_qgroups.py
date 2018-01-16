@@ -39,13 +39,10 @@ class ParseError(Exception):
     pass
 
 
-_SubvolEntry = NamedTuple('_SubvolEntry', [
-    ('id', SubvolId),
-    ('path', str),
-])
+class SubvolEntry(NamedTuple):
+    id: SubvolId
+    path: str
 
-
-class SubvolEntry(_SubvolEntry):
     @classmethod
     def from_line(cls, line: str) -> 'SubvolEntry':
         try:
@@ -62,15 +59,12 @@ class SubvolEntry(_SubvolEntry):
         return f'[{self.id}]{self.path}'
 
 
-_QGroupEntry = NamedTuple('_QGroupEntry', [
-    ('qgroupid', QGroupId),
-    ('rfer', Size),
-    ('excl', Size),
-    ('parent', Optional[QGroupId]),
-])
+class QGroupEntry(NamedTuple):
+    qgroupid: QGroupId
+    rfer: Size
+    excl: Size
+    parent: Optional[QGroupId]
 
-
-class QGroupEntry(_QGroupEntry):
     @classmethod
     def from_line(cls, line: str) -> 'QGroupEntry':
         try:
